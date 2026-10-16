@@ -1,0 +1,562 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>SegmentIQ — Customer Segmentation &amp; Sales Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--tx:#141a2e;--mut:#667089;--bd:#e3e7f1;--ac:#5b5bf0;--ac2:#14b8a6;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d111d;--card:#161c2e;--tx:#e8ecf8;--mut:#8b95b3;--bd:#252d45;--ac:#7c7cff;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#0d111d;--card:#161c2e;--tx:#e8ecf8;--mut:#8b95b3;--bd:#252d45;--ac:#7c7cff;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 Inter,system-ui,sans-serif}
+.app{display:flex;min-height:100vh}
+.side{width:230px;background:var(--card);border-right:1px solid var(--bd);padding:18px 12px;position:sticky;top:0;height:100vh;flex-shrink:0;overflow-y:auto}
+.logo{font-weight:700;font-size:18px;padding:4px 10px 18px;display:flex;gap:8px;align-items:center}
+.logo i{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--ac),var(--ac2));display:inline-block}
+.nav button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--mut);padding:10px 12px;border-radius:10px;font:inherit;font-weight:500;cursor:pointer;transition:.2s}
+.nav button:hover{background:var(--bg);color:var(--tx)}.nav button.on{background:var(--ac);color:#fff}
+.main{flex:1;min-width:0;padding:22px 26px;max-width:1400px}
+.top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+h1{font-size:22px;margin:0}h2{font-size:17px;margin:0 0 10px}h3{margin:0 0 10px;font-size:15px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;animation:in .4s both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.grid{display:grid;gap:14px}
+.k5{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.kpi small{color:var(--mut);display:block}.kpi b{font-size:24px}
+.up{color:#16a34a;font-size:12px}.dn{color:#dc2626;font-size:12px}
+.fb{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+input,select,button.b{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:9px;padding:8px 10px;font:inherit}
+button.b{cursor:pointer;font-weight:500;transition:.2s}button.b:hover{border-color:var(--ac)}
+button.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+.ch{height:270px;position:relative}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase}
+tr.cl{cursor:pointer}tr.cl:hover{background:var(--bg)}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;color:#fff}
+.rh{color:#dc2626;font-weight:700}.rm{color:#f59e0b;font-weight:700}.rl{color:#16a34a;font-weight:700}
+.sk{height:120px;border-radius:14px;background:linear-gradient(90deg,var(--card),var(--bd),var(--card));background-size:200% 100%;animation:sh 1s infinite;margin-bottom:14px}
+@keyframes sh{to{background-position:-200% 0}}
+.empty{text-align:center;padding:50px;color:var(--mut)}
+.hm{display:grid;grid-template-columns:30px repeat(5,1fr);gap:4px;text-align:center;font-size:12px}
+.hm div{padding:12px 2px;border-radius:6px}
+.modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;z-index:9;padding:16px}
+.modal .card{max-width:780px;width:100%;max-height:90vh;overflow:auto}
+ul{padding-left:18px;margin:6px 0}.mut{color:var(--mut)}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.coh td{text-align:center;min-width:58px;border-radius:4px}.coh td:first-child{text-align:left;font-weight:600}
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:10px}
+.tc{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:12px}
+.tc b{display:block;margin-bottom:3px;font-size:14px}.tc span{color:var(--mut);font-size:13px}
+.ab-sec{margin-bottom:22px}.ab-sec h2{border-bottom:1px solid var(--bd);padding-bottom:8px;margin-bottom:12px}
+@media(max-width:820px){.app{flex-direction:column}.side{width:100%;height:auto;position:static;padding:10px}.nav{display:flex;overflow-x:auto}.nav button{white-space:nowrap;width:auto}.main{padding:14px}}
+@media print{.side,.fb,.nonp{display:none!important}.card{break-inside:avoid}}
+</style></head><body>
+<div class="app">
+<aside class="side">
+  <div class="logo"><i></i>SegmentIQ</div>
+  <nav class="nav" id="nav"></nav>
+  <div style="margin-top:18px" class="nonp"><button class="b" style="width:100%" onclick="tog()">&#9680; Dark / Light</button></div>
+
+</aside>
+<main class="main" id="main"></main>
+</div>
+<div id="md"></div>
+<script>
+
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $f=n=>'$'+Math.round(n).toLocaleString(),$n=n=>Math.round(n).toLocaleString();
+const cs=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const PAL=['#5b5bf0','#14b8a6','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#f97316'];
+const SEGS=['Champions','Loyal Customers','New / Promising','Win-Back (High Value)','Hibernating','Needs Attention'];
+const STRAT={
+  'Champions':['Premium products & exclusive offers','Early access to launches, VIP tier, referral rewards, premium bundles.'],
+  'Loyal Customers':['Upsell & loyalty rewards','Points multipliers, cross-sell adjacent categories, subscription offers.'],
+  'New / Promising':['Starter bundles & onboarding','Welcome series, starter bundles, second-purchase discount within 30 days.'],
+  'Win-Back (High Value)':['Win-back campaigns','Personalised "we miss you" offers, limited-time incentives, concierge outreach.'],
+  'Hibernating':['Low-cost reactivation','Clearance promotions, survey for churn reasons, sunset after 2 failed attempts.'],
+  'Needs Attention':['Nurture & engage','Educational content, recommendations on past categories, free-shipping thresholds.']
+};
+let S={orders:[],cust:{},ref:0,page:'dash',f:{from:'',to:'',seg:'',cat:'',reg:''},custom:[{name:'Big Spenders',minM:1500,minF:0,maxR:9999,reg:'',a1:0,a2:99}],k:4,raw:null,map:{},CH:{},q:''};
+const sc_=k=>SEGS.indexOf(k)>=0?PAL[SEGS.indexOf(k)]:PAL[(S.custom.findIndex(c=>c.name==k)+6)%9];
+
+/* ---------- sample data ---------- */
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const CATS={Electronics:[['Wireless Earbuds',89],['Smart Watch',199],['Laptop Stand',45],['Bluetooth Speaker',79]],Fashion:[['Sneakers',95],['Denim Jacket',120],['Backpack',60],['Sunglasses',70]],'Home & Living':[['Air Purifier',180],['Coffee Maker',110],['Bedding Set',85],['LED Lamp',40]],Beauty:[['Skincare Kit',65],['Perfume',90],['Hair Dryer',55]],Sports:[['Yoga Mat',30],['Dumbbell Set',75],['Running Shoes',110]],Grocery:[['Organic Basket',35],['Gourmet Tea',25],['Snack Box',20]]};
+function sample(){
+  const r=rng(7),pk=a=>a[Math.floor(r()*a.length)],ri=(a,b)=>a+Math.floor(r()*(b-a+1));
+  const ref=Date.UTC(2026,9,15),cats=Object.keys(CATS),regs=['North','South','East','West','Central'];
+  const FN='Aarav Maya Liam Noah Emma Olivia Ravi Sana Chen Yuki Omar Zara Ethan Mia Arjun Priya Lucas Sofia Kabir Anaya'.split(' ');
+  const LN='Sharma Patel Smith Garcia Khan Singh Lee Brown Mehta Gupta Wong Silva Kumar Nair Rossi'.split(' ');
+  const AR=[[.15,12,25,0,30,600,[0,2,0]],[.25,6,12,5,70,600,[0,1,2]],[.15,1,2,2,45,40,[1,3,4]],[.15,5,10,110,260,600,[0,2,0]],[.30,1,4,190,600,300,[3,4,5]]];
+  S.orders=[];S.cust={};S.ref=ref;let oid=1;
+  for(let i=1;i<=420;i++){
+    let p=r(),a=0,cum=0;for(;a<4;a++){cum+=AR[a][0];if(p<cum)break}
+    const A=AR[a],n=ri(A[1],A[2]),end=ri(A[3],A[4]),st=end+ri(40,A[5]),id='C'+String(1000+i);
+    S.cust[id]={id,name:pk(FN)+' '+pk(LN),region:pk(regs),age:ri(18,68),channel:pk(['Web','Mobile','Store','Social'])};
+    const fav=[cats[ri(0,5)],cats[ri(0,5)],cats[A[6][a%3]]];
+    for(let j=0;j<n;j++){
+      const days=n==1?end:st-(st-end)*(j/(n-1||1)),cat=r()<.7?pk(fav):pk(cats),pr=pk(CATS[cat]),q=r()<.2?2:1;
+      const mult=(a==0?1.35:a==4?.8:1)*(.7+r()*.7);
+      S.orders.push({id:oid++,cid:id,d:ref-Math.round(days)*864e5,cat,prod:pr[0],qty:q,amt:Math.round(pr[1]*q*mult*100)/100});
+    }
+  }
+}
+
+/* ---------- analytics ---------- */
+function sc(a,k,inv){[...a].sort((x,y)=>inv?y[k]-x[k]:x[k]-y[k]).forEach((c,i)=>c['s'+k]=Math.ceil(5*(i+1)/a.length))}
+function segOf(c){
+  if(c.sR>=4&&c.sF>=4)return SEGS[0];
+  if(c.sR>=3&&c.sF>=3)return SEGS[1];
+  if(c.sR>=4&&c.sF<=2)return SEGS[2];
+  if(c.sR<=2&&(c.sF>=3||c.sM>=4))return SEGS[3];
+  if(c.sR<=2)return SEGS[4];
+  return SEGS[5];
+}
+function churnRisk(c){
+  const score=(5-c.sR)*2+(5-c.sF)+(5-c.sM);
+  if(score>=10)return'High';if(score>=6)return'Medium';return'Low';
+}
+const inSeg=(c,s)=>c.M>=s.minM&&c.F>=s.minF&&c.R<=s.maxR&&(!s.reg||c.region==s.reg)&&c.age>=s.a1&&c.age<=s.a2;
+function calc(){
+  const F=S.f,fr=F.from?+new Date(F.from):0,to=F.to?+new Date(F.to)+864e5:1e15,m={};
+  S.orders.forEach(x=>{
+    const c0=S.cust[x.cid];
+    if(!c0||x.d<fr||x.d>=to||(F.cat&&x.cat!=F.cat)||(F.reg&&c0.region!=F.reg))return;
+    const c=m[x.cid]??={...c0,F:0,M:0,last:0,first:1e15,o:[]};
+    c.F++;c.M+=x.amt;c.last=Math.max(c.last,x.d);c.first=Math.min(c.first,x.d);c.o.push(x);
+  });
+  let a=Object.values(m);
+  a.forEach(c=>c.R=Math.round((S.ref-c.last)/864e5));
+  sc(a,'R',1);sc(a,'F');sc(a,'M');
+  a.forEach(c=>{c.seg=segOf(c);c.churn=churnRisk(c);c.tags=S.custom.filter(s=>inSeg(c,s)).map(s=>s.name)});
+  if(F.seg)a=a.filter(c=>c.seg==F.seg||c.tags.includes(F.seg));
+  return{a,os:a.flatMap(c=>c.o)};
+}
+function stat(a){
+  const n=a.length,rev=a.reduce((s,c)=>s+c.M,0),f=a.reduce((s,c)=>s+c.F,0);
+  return{n,rev,avg:n?rev/n:0,f:n?f/n:0,r:n?a.reduce((s,c)=>s+c.R,0)/n:0,aov:f?rev/f:0};
+}
+const members=(a,name)=>SEGS.includes(name)?a.filter(c=>c.seg==name):a.filter(c=>c.tags.includes(name));
+const allSegs=()=>[...SEGS,...S.custom.map(c=>c.name)];
+function byCat(os,key='cat'){const m={};os.forEach(x=>m[x[key]]=(m[x[key]]||0)+x.amt);return m}
+function recs(a,all){
+  const os=a.flatMap(c=>c.o),tot=os.reduce((s,x)=>s+x.amt,0)||1,gt=all.reduce((s,x)=>s+x.amt,0)||1;
+  const sh=byCat(os),gs=byCat(all),res=[];
+  for(const k in sh){
+    const buyers=new Set(os.filter(x=>x.cat==k).map(x=>x.cid)).size;
+    const oc=os.filter(x=>x.cat==k),pp=byCat(oc,'prod'),tp=Object.entries(pp).sort((x,y)=>y[1]-x[1])[0];
+    res.push({cat:k,share:sh[k]/tot,lift:(sh[k]/tot)/((gs[k]||1)/gt),buy:buyers/a.length,tick:sh[k]/oc.length,prod:tp?.[0]});
+  }
+  return res.sort((x,y)=>y.share*y.lift-x.share*x.lift);
+}
+
+/* ---------- helpers ---------- */
+function mk(id,cfg){
+  S.CH[id]?.destroy();const c=document.getElementById(id);if(!c)return;
+  Chart.defaults.color=cs('--mut');Chart.defaults.borderColor=cs('--bd');
+  cfg.options={maintainAspectRatio:false,responsive:true,...cfg.options};
+  S.CH[id]=new Chart(c,cfg);
+}
+const tag=s=>`<span class="tag" style="background:${sc_(s)}">${esc(s)}</span>`;
+const empty=m=>`<div class="card empty"><div style="font-size:34px">&#128205;</div><h3>No data to show</h3>${m||'Adjust the filters or load data.'}</div>`;
+const tbl=(h,rows)=>`<div class="tw"><table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
+function exp(t){
+  const{a}=calc(),rows=a.map(c=>({ID:c.id,Name:c.name,Region:c.region,Age:c.age,Channel:c.channel,Orders:c.F,Revenue:+c.M.toFixed(2),RecencyDays:c.R,R_Score:c.sR,F_Score:c.sF,M_Score:c.sM,Segment:c.seg,ChurnRisk:c.churn,CustomSegments:c.tags.join('; ')}));
+  if(!rows.length)return alert('Nothing to export');
+  if(t=='pdf')return window.print();
+  const ws=XLSX.utils.json_to_sheet(rows);
+  if(t=='xlsx'){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Segmented');XLSX.writeFile(wb,'segmented_customers.xlsx')}
+  else dl(new Blob([XLSX.utils.sheet_to_csv(ws)],{type:'text/csv'}),'segmented_customers.csv');
+}
+function tog(){
+  const d=document.documentElement,dark=d.dataset.theme?d.dataset.theme=='dark':matchMedia('(prefers-color-scheme:dark)').matches;
+  d.dataset.theme=dark?'light':'dark';try{localStorage.setItem('th',d.dataset.theme)}catch(e){}go();
+}
+function filters(){
+  const cc=[...new Set(S.orders.map(o=>o.cat))].sort(),regs=[...new Set(Object.values(S.cust).map(c=>c.region))].sort();
+  const sel=(k,l,o)=>`<select onchange="S.f.${k}=this.value;go(1)"><option value="">${l}</option>${o.map(x=>`<option ${S.f[k]==x?'selected':''}>${esc(x)}</option>`).join('')}</select>`;
+  return`<div class="fb nonp">
+    <input type="date" value="${S.f.from}" onchange="S.f.from=this.value;go(1)" title="From">
+    <input type="date" value="${S.f.to}" onchange="S.f.to=this.value;go(1)" title="To">
+    ${sel('seg','All segments',allSegs())}${sel('cat','All categories',cc)}${sel('reg','All regions',regs)}
+    <button class="b" onclick="S.f={from:'',to:'',seg:'',cat:'',reg:''};go(1)">Reset</button>
+    <span style="flex:1"></span>
+    <button class="b" onclick="exp('csv')">&#11015; CSV</button>
+    <button class="b" onclick="exp('xlsx')">&#11015; Excel</button>
+    <button class="b p" onclick="exp('pdf')">&#11015; PDF</button>
+  </div>`;
+}
+
+/* ---------- pages ---------- */
+const P={};
+P.dash=()=>{
+  const{a,os}=calc();if(!a.length)return[empty(),()=>{}];
+  const st=stat(a),m={};
+  os.forEach(x=>{const k=new Date(x.d).toISOString().slice(0,7);m[k]??={r:0,n:0};m[k].r+=x.amt;m[k].n++});
+  const ks=Object.keys(m).sort(),L=ks.length>1?m[ks[ks.length-1]].r:0,Pv=ks.length>1?m[ks[ks.length-2]].r:0,g=Pv?(L-Pv)/Pv*100:0;
+  const span=Math.max(1,(Math.max(...os.map(x=>x.d))-Math.min(...os.map(x=>x.d)))/864e5/365),clv=st.aov*(st.f/span)*3;
+  const segs=allSegs().filter(s=>SEGS.includes(s)).map(s=>({s,...stat(members(a,s))})).filter(x=>x.n);
+  const R=[...Array(5)].map(()=>Array(5).fill(0));a.forEach(c=>R[5-c.sF][c.sR-1]++);const mx=Math.max(...R.flat());
+  const hm=`<div class="hm"><span></span>${[1,2,3,4,5].map(i=>`<b>R${i}</b>`).join('')}${R.map((r,i)=>`<b style="padding:12px 0">F${5-i}</b>`+r.map(v=>`<div style="background:rgba(91,91,240,${(.1+.9*v/mx).toFixed(2)});color:${v/mx>.5?'#fff':'var(--tx)'}">${v}</div>`).join('')).join('')}</div><p class="mut" style="margin:8px 0 0">Recency score (&#8594; more recent) &#215; Frequency score (&#8593; more frequent)</p>`;
+  const churnCounts={High:a.filter(c=>c.churn=='High').length,Medium:a.filter(c=>c.churn=='Medium').length,Low:a.filter(c=>c.churn=='Low').length};
+  const kp=(l,v,x='')=>`<div class="card kpi"><small>${l}</small><b>${v}</b> ${x}</div>`;
+  return[`<div class="grid k5">
+    ${kp('Total Customers',$n(st.n))}
+    ${kp('Total Revenue',$f(st.rev))}
+    ${kp('Avg Order Value',$f(st.aov))}
+    ${kp('3-yr CLV (proj.)',$f(clv))}
+    ${kp('MoM Growth',(g>=0?'+':'')+g.toFixed(1)+'%',`<span class="${g>=0?'up':'dn'}">${g>=0?'&#9650;':'&#9660;'} MoM</span>`)}
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Segment Distribution</h3><div class="ch"><canvas id="c1"></canvas></div></div>
+    <div class="card"><h3>Revenue by Segment</h3><div class="ch"><canvas id="c2"></canvas></div></div>
+    <div class="card"><h3>Monthly Sales Trend</h3><div class="ch"><canvas id="c3"></canvas></div></div>
+    <div class="card"><h3>Frequency vs Spend (by Segment)</h3><div class="ch"><canvas id="c4"></canvas></div></div>
+    <div class="card"><h3>RFM Heatmap</h3>${hm}</div>
+    <div class="card"><h3>Revenue by Category</h3><div class="ch"><canvas id="c5"></canvas></div></div>
+    <div class="card"><h3>Age Distribution</h3><div class="ch"><canvas id="c6"></canvas></div></div>
+    <div class="card"><h3>Churn Risk Distribution</h3><div class="ch"><canvas id="c7"></canvas></div>
+      <div class="row" style="margin-top:10px;justify-content:center;gap:18px">
+        <span class="rh">&#9679; High: ${churnCounts.High}</span>
+        <span class="rm">&#9679; Medium: ${churnCounts.Medium}</span>
+        <span class="rl">&#9679; Low: ${churnCounts.Low}</span>
+      </div>
+    </div>
+  </div>`,()=>{
+    mk('c1',{type:'doughnut',data:{labels:segs.map(x=>x.s),datasets:[{data:segs.map(x=>x.n),backgroundColor:segs.map(x=>sc_(x.s)),borderWidth:0}]},options:{plugins:{legend:{position:'right'}},cutout:'62%'}});
+    mk('c2',{type:'bar',data:{labels:segs.map(x=>x.s),datasets:[{data:segs.map(x=>Math.round(x.rev)),backgroundColor:segs.map(x=>sc_(x.s)),borderRadius:6}]},options:{plugins:{legend:{display:false}}}});
+    mk('c3',{type:'line',data:{labels:ks,datasets:[{label:'Revenue',data:ks.map(k=>Math.round(m[k].r)),borderColor:'#5b5bf0',backgroundColor:'#5b5bf033',fill:true,tension:.35},{label:'Orders x50',data:ks.map(k=>m[k].n*50),borderColor:'#14b8a6',tension:.35,borderDash:[5,4]}]}});
+    mk('c4',{type:'scatter',data:{datasets:segs.map(x=>({label:x.s,data:members(a,x.s).map(c=>({x:c.F,y:Math.round(c.M)})),backgroundColor:sc_(x.s)+'aa',pointRadius:3}))},options:{scales:{x:{title:{display:true,text:'Orders'}},y:{title:{display:true,text:'Revenue ($)'}}},plugins:{legend:{display:false}}}});
+    const cb=Object.entries(byCat(os)).sort((x,y)=>y[1]-x[1]);
+    mk('c5',{type:'bar',data:{labels:cb.map(x=>x[0]),datasets:[{data:cb.map(x=>Math.round(x[1])),backgroundColor:PAL,borderRadius:6}]},options:{indexAxis:'y',plugins:{legend:{display:false}}}});
+    const ages=[0,0,0,0,0],labs=['18-27','28-37','38-47','48-57','58+'];
+    a.forEach(c=>{const i=Math.min(4,Math.floor((c.age-18)/10));ages[i]++});
+    mk('c6',{type:'bar',data:{labels:labs,datasets:[{data:ages,backgroundColor:'#5b5bf0aa',borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'Customers'}}}}});
+    mk('c7',{type:'doughnut',data:{labels:['High','Medium','Low'],datasets:[{data:[churnCounts.High,churnCounts.Medium,churnCounts.Low],backgroundColor:['#ef4444','#f59e0b','#16a34a'],borderWidth:0}]},options:{plugins:{legend:{display:false}},cutout:'60%'}});
+  }];
+};
+
+P.seg=()=>{
+  const{a}=calc();if(!a.length)return[empty(),()=>{}];
+  const rows=allSegs().map(s=>{
+    const m=members(a,s),t=stat(m),cu=S.custom.findIndex(c=>c.name==s);
+    return`<tr><td>${tag(s)}</td><td>${t.n}</td><td>${$f(t.avg)}</td><td>${t.f.toFixed(1)}</td><td>${Math.round(t.r)}d</td><td>${$f(t.aov)}</td><td class="mut">${cu<0?esc(STRAT[s][0]):'Custom rule'}</td><td class="nonp">${cu<0?'':`<button class="b" onclick="editSeg(${cu})">Edit</button> <button class="b" onclick="S.custom.splice(${cu},1);go(1)">&#10005;</button>`}</td></tr>`;
+  });
+  const cu=S.editing!=null?S.custom[S.editing]:{name:'',minM:0,minF:0,maxR:9999,reg:'',a1:18,a2:99};
+  const ip=(id,l,v,t='number')=>`<label class="mut">${l}<br><input id="${id}" type="${t}" value="${esc(v)}" style="width:130px"></label>`;
+  const so=allSegs().map(s=>`<option>${esc(s)}</option>`).join('');
+  return[`<div class="card"><h3>Segments (RFM-based + custom)</h3>${tbl(['Segment','Size','Avg Value','Avg Orders','Avg Recency','AOV','Characteristics',''],rows)}</div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>${S.editing!=null?'Edit':'Create'} Custom Segment</h3>
+      <div class="row">${ip('n_','Name',cu.name,'text')}${ip('mM','Min spend $',cu.minM)}${ip('mF','Min orders',cu.minF)}${ip('mR','Max recency (days)',cu.maxR)}${ip('a1','Age from',cu.a1)}${ip('a2','Age to',cu.a2)}
+        <label class="mut">Region<br><select id="rg"><option value="">Any</option>${['North','South','East','West','Central'].map(r=>`<option ${cu.reg==r?'selected':''}>${r}</option>`).join('')}</select></label>
+      </div><p><button class="b p" onclick="saveSeg()">Save segment</button></p>
+    </div>
+    <div class="card"><h3>Compare Segments</h3>
+      <div class="row"><select id="ca" onchange="cmp()">${so}</select> vs <select id="cb" onchange="cmp()">${so}</select></div>
+      <div id="cmp" style="margin-top:10px"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="row"><h3 style="margin:0">K-Means Clustering</h3><span class="mut">k =</span>
+      <select onchange="S.k=+this.value;go(1)">${[3,4,5,6].map(k=>`<option ${S.k==k?'selected':''}>${k}</option>`).join('')}</select>
+      <span class="mut" style="font-size:12px">Features: Recency, Frequency, Monetary (normalised)</span>
+    </div>
+    <div class="grid g2" style="margin-top:10px"><div class="ch"><canvas id="km"></canvas></div><div id="kt"></div></div>
+  </div>`,()=>{
+    $('#cb').selectedIndex=1;cmp.a=a;cmp();
+    const K=kmeans(a,S.k);
+    mk('km',{type:'scatter',data:{datasets:K.cl.map((m,i)=>({label:'Cluster '+(i+1),data:m.map(c=>({x:c.R,y:Math.round(c.M)})),backgroundColor:PAL[i]+'aa',pointRadius:3}))},options:{scales:{x:{title:{display:true,text:'Recency (days)'}},y:{title:{display:true,text:'Revenue ($)'}}}}});
+    $('#kt').innerHTML=tbl(['Cluster','Size','Avg Spend','Avg Orders','Avg Recency'],K.cl.map((m,i)=>{const t=stat(m);return`<tr><td><span class="tag" style="background:${PAL[i]}">Cluster ${i+1}</span></td><td>${t.n}</td><td>${$f(t.avg)}</td><td>${t.f.toFixed(1)}</td><td>${Math.round(t.r)}d</td></tr>`}));
+  }];
+};
+function cmp(){
+  const a=cmp.a||calc().a,A=$('#ca').value,B=$('#cb').value;
+  const x=stat(members(a,A)),y=stat(members(a,B));
+  const r=(l,f,k)=>`<tr><td>${l}</td><td>${f(x[k])}</td><td>${f(y[k])}</td></tr>`;
+  $('#cmp').innerHTML=tbl(['Metric',esc(A),esc(B)],[r('Customers',$n,'n'),r('Revenue',$f,'rev'),r('Avg value',$f,'avg'),r('Avg orders',v=>v.toFixed(1),'f'),r('Recency (d)',$n,'r'),r('AOV',$f,'aov')]);
+}
+function kmeans(a,k){
+  const mm=f=>{const v=a.map(f);return[Math.min(...v),Math.max(...v)||1]};
+  const fs=[c=>c.R,c=>c.F,c=>c.M].map(f=>({f,r:mm(f)}));
+  const P=a.map(c=>fs.map(z=>(z.f(c)-z.r[0])/((z.r[1]-z.r[0])||1)));
+  const d=(p,q)=>p.reduce((s,v,i)=>s+(v-q[i])**2,0);
+  let C=[P[0]];
+  while(C.length<k){let b=0,bd=-1;P.forEach((p,i)=>{const m=Math.min(...C.map(c=>d(p,c)));if(m>bd){bd=m;b=i}});C.push(P[b])}
+  let lab=[];
+  for(let it=0;it<20;it++){
+    lab=P.map(p=>{let b=0,bd=1e9;C.forEach((c,i)=>{const x=d(p,c);if(x<bd){bd=x;b=i}});return b});
+    C=C.map((c,i)=>{const m=P.filter((_,j)=>lab[j]==i);return m.length?c.map((_,t)=>m.reduce((s,p)=>s+p[t],0)/m.length):c});
+  }
+  const cl=C.map((_,i)=>a.filter((_,j)=>lab[j]==i)).filter(m=>m.length).sort((x,y)=>stat(y).avg-stat(x).avg);
+  return{cl};
+}
+function editSeg(i){S.editing=i;go(1)}
+function saveSeg(){
+  const n=$('#n_').value.trim();
+  if(!n||allSegs().includes(n)&&S.editing==null)return alert('Enter a unique name');
+  const s={name:n,minM:+$('#mM').value||0,minF:+$('#mF').value||0,maxR:+$('#mR').value||9999,reg:$('#rg').value,a1:+$('#a1').value||0,a2:+$('#a2').value||99};
+  S.editing!=null?S.custom[S.editing]=s:S.custom.push(s);S.editing=null;go(1);
+}
+
+P.ins=()=>{
+  const{a,os}=calc();if(!a.length)return[empty(),()=>{}];
+  const ic={'Champions':'&#127942;','Loyal Customers':'&#128142;','New / Promising':'&#127807;','Win-Back (High Value)':'&#128276;','Hibernating':'&#128564;','Needs Attention':'&#129517;'};
+  const cards=SEGS.map(s=>{
+    const m=members(a,s);if(!m.length)return'';
+    const t=stat(m),R=recs(m,os).slice(0,3);
+    return`<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${ic[s]} ${tag(s)}</h3><span class="mut">${t.n} customers &middot; ${$f(t.avg)} avg</span></div>
+    <p><b>Strategy: ${STRAT[s][0]}</b><br><span class="mut">${STRAT[s][1]}</span></p>
+    <h3 style="font-size:13px">Recommended products</h3>
+    ${R.map((r,i)=>`<div style="padding:8px 0;border-top:1px solid var(--bd)"><b>${i+1}. ${esc(r.cat)}</b> &mdash; lead with <i>${esc(r.prod)}</i><br><span class="mut">${(r.share*100).toFixed(0)}% of segment spend, ${r.lift.toFixed(1)}&times; overall avg; ${(r.buy*100).toFixed(0)}% of members buy it at ~${$f(r.tick)}/order. Avg ${t.f.toFixed(1)} orders, recency ${Math.round(t.r)} days.</span></div>`).join('')}
+    </div>`;
+  }).join('');
+  return[`<div class="grid g2">${cards}</div>`,()=>{}];
+};
+
+P.prod=()=>{
+  const{a,os}=calc();if(!os.length)return[empty(),()=>{}];
+  const sg=Object.fromEntries(a.map(c=>[c.id,c.seg]));
+  const m={};
+  os.forEach(x=>{
+    const p=m[x.prod]??={cat:x.cat,rev:0,u:0,b:new Set,sg:{}};
+    p.rev+=x.amt;p.u+=x.qty;p.b.add(x.cid);
+    p.sg[sg[x.cid]]=(p.sg[sg[x.cid]]||0)+x.amt;
+  });
+  const rows=Object.entries(m).sort((x,y)=>y[1].rev-x[1].rev).map(([n,p])=>{
+    const top=Object.entries(p.sg).sort((x,y)=>y[1]-x[1])[0]?.[0]||'';
+    return`<tr><td>${esc(n)}</td><td>${esc(p.cat)}</td><td>${$f(p.rev)}</td><td>${$n(p.u)}</td><td>${p.b.size}</td><td>${top?tag(top):''}</td></tr>`;
+  });
+  return[`<div class="card"><h3>Category Revenue by Segment</h3><div class="ch" style="height:320px"><canvas id="pc"></canvas></div></div>
+  <div class="card" style="margin-top:14px"><h3>Product Performance</h3>${tbl(['Product','Category','Revenue','Units','Buyers','Top Segment'],rows)}</div>`,()=>{
+    const cats=Object.keys(byCat(os));
+    mk('pc',{type:'bar',data:{labels:cats,datasets:SEGS.map(s=>({label:s,backgroundColor:sc_(s),data:cats.map(c=>Math.round(a.filter(x=>x.seg==s).flatMap(x=>x.o).filter(o=>o.cat==c).reduce((t,o)=>t+o.amt,0)))}))},options:{scales:{x:{stacked:true},y:{stacked:true}}}});
+  }];
+};
+
+P.cust=()=>{
+  const{a}=calc(),q=S.q.toLowerCase();
+  const r=a.filter(c=>!q||(c.name+c.id+c.region).toLowerCase().includes(q)).sort((x,y)=>y.M-x.M).slice(0,100);
+  const riskTag=v=>v=='High'?`<span class="rh">&#9650; High</span>`:v=='Medium'?`<span class="rm">&#9654; Medium</span>`:`<span class="rl">&#9660; Low</span>`;
+  return[`<div class="card">
+    <div class="row" style="margin-bottom:10px">
+      <input id="sq" placeholder="Search name, ID or region&hellip;" value="${esc(S.q)}" style="min-width:260px" oninput="S.q=this.value;clearTimeout(S.t);S.t=setTimeout(()=>{go(1);const e=$('#sq');e.focus();e.setSelectionRange(99,99)},250)">
+      <span class="mut">${r.length} shown</span>
+    </div>
+    ${r.length?tbl(['ID','Name','Region','Age','Channel','Orders','Revenue','Recency','Churn Risk','Segment'],r.map(c=>`<tr class="cl" onclick="prof('${c.id}')"><td>${c.id}</td><td>${esc(c.name)}</td><td>${esc(c.region)}</td><td>${c.age}</td><td>${esc(c.channel)}</td><td>${c.F}</td><td>${$f(c.M)}</td><td>${c.R}d</td><td>${riskTag(c.churn)}</td><td>${tag(c.seg)}</td></tr>`)):'<div class="empty">No customers match.</div>'}
+  </div>`,()=>{}];
+};
+function prof(id){
+  const c=calc().a.find(x=>x.id==id);if(!c)return;
+  const riskTag=v=>v=='High'?`<span class="rh">&#9650; High Churn Risk</span>`:v=='Medium'?`<span class="rm">&#9654; Medium Churn Risk</span>`:`<span class="rl">&#9660; Low Churn Risk</span>`;
+  $('#md').innerHTML=`<div class="modal" onclick="if(event.target==this)this.remove()"><div class="card">
+    <div class="row" style="justify-content:space-between"><h3 style="font-size:20px;margin:0">${esc(c.name)} <span class="mut" style="font-size:13px">${c.id}</span></h3><button class="b" onclick="$('#md').innerHTML=''">&#10005;</button></div>
+    <p>${tag(c.seg)} ${c.tags.map(tag).join(' ')} ${riskTag(c.churn)}</p>
+    <div class="grid k5">
+      <div><small class="mut">Revenue</small><br><b>${$f(c.M)}</b></div>
+      <div><small class="mut">Orders</small><br><b>${c.F}</b></div>
+      <div><small class="mut">Recency</small><br><b>${c.R}d</b></div>
+      <div><small class="mut">RFM Score</small><br><b>${c.sR}-${c.sF}-${c.sM}</b></div>
+      <div><small class="mut">Region / Age</small><br><b>${esc(c.region)} / ${c.age}</b></div>
+      <div><small class="mut">Channel</small><br><b>${esc(c.channel)}</b></div>
+    </div>
+    <h3 style="margin-top:14px">Purchase History</h3>
+    ${tbl(['Date','Product','Category','Qty','Amount'],[...c.o].sort((x,y)=>y.d-x.d).map(o=>`<tr><td>${new Date(o.d).toISOString().slice(0,10)}</td><td>${esc(o.prod)}</td><td>${esc(o.cat)}</td><td>${o.qty}</td><td>${$f(o.amt)}</td></tr>`))}
+  </div></div>`;
+}
+
+P.cohort=()=>{
+  const{a}=calc();if(!a.length)return[empty(),()=>{}];
+  // Build cohort: group customers by first-purchase month, track retention per subsequent month
+  const cohorts={};
+  a.forEach(c=>{
+    const cohortKey=new Date(c.first).toISOString().slice(0,7);
+    cohorts[cohortKey]??={customers:new Set(),months:{}};
+    cohorts[cohortKey].customers.add(c.id);
+    c.o.forEach(o=>{
+      const mk=new Date(o.d).toISOString().slice(0,7);
+      cohorts[cohortKey].months[mk]??=new Set();
+      cohorts[cohortKey].months[mk].add(c.id);
+    });
+  });
+  const cohortKeys=Object.keys(cohorts).sort().slice(-12); // last 12 cohorts
+  const allMonths=[...new Set(cohortKeys.flatMap(ck=>Object.keys(cohorts[ck].months)))].sort();
+  // Build header: Month 0, Month 1, ... Month N
+  const maxPeriods=8;
+  const headerCols=['Cohort','Size',...Array.from({length:maxPeriods},(_,i)=>`M+${i}`)];
+  const rows=cohortKeys.map(ck=>{
+    const co=cohorts[ck],size=co.customers.size;
+    const cohortMonthIdx=allMonths.indexOf(ck);
+    const cells=Array.from({length:maxPeriods},(_,i)=>{
+      const targetMonth=allMonths[cohortMonthIdx+i];
+      if(!targetMonth)return`<td style="background:var(--bg)"></td>`;
+      const retained=co.months[targetMonth]?.size||0;
+      const pct=size?Math.round(retained/size*100):0;
+      const alpha=(0.1+0.9*pct/100).toFixed(2);
+      const textColor=pct>50?'#fff':'var(--tx)';
+      return`<td style="background:rgba(91,91,240,${alpha});color:${textColor};border-radius:4px">${pct}%</td>`;
+    });
+    return`<tr><td>${ck}</td><td>${size}</td>${cells.join('')}</tr>`;
+  });
+  const avgRow=Array.from({length:maxPeriods},(_,i)=>{
+    const vals=cohortKeys.map(ck=>{
+      const co=cohorts[ck],size=co.customers.size,cohortMonthIdx=allMonths.indexOf(ck),targetMonth=allMonths[cohortMonthIdx+i];
+      return targetMonth&&size?(co.months[targetMonth]?.size||0)/size*100:null;
+    }).filter(v=>v!==null);
+    const avg=vals.length?Math.round(vals.reduce((s,v)=>s+v,0)/vals.length):0;
+    const alpha=(0.1+0.9*avg/100).toFixed(2);
+    return`<td style="background:rgba(20,184,166,${alpha});color:${avg>50?'#fff':'var(--tx)'};border-radius:4px;font-weight:700">${avg}%</td>`;
+  });
+  const avgRowHtml=`<tr style="border-top:2px solid var(--bd)"><td><b>Average</b></td><td></td>${avgRow.join('')}</tr>`;
+  return[`<div class="card">
+    <h3>Monthly Cohort Retention</h3>
+    <p class="mut">Each row = customers who made their first purchase in that month. Percentages show how many returned in subsequent months (M+0 = acquisition month).</p>
+    <div class="cohort-wrap">${tbl(headerCols,[...rows,avgRowHtml])}</div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3>Retention Trend (M+1 vs M+3)</h3>
+    <div class="ch"><canvas id="crt"></canvas></div>
+  </div>`,()=>{
+    const m1=[],m3=[],labels=[];
+    cohortKeys.forEach(ck=>{
+      const co=cohorts[ck],size=co.customers.size,ci=allMonths.indexOf(ck);
+      const r1=allMonths[ci+1]?Math.round((co.months[allMonths[ci+1]]?.size||0)/size*100):null;
+      const r3=allMonths[ci+3]?Math.round((co.months[allMonths[ci+3]]?.size||0)/size*100):null;
+      if(r1!==null){labels.push(ck);m1.push(r1);m3.push(r3??null);}
+    });
+    mk('crt',{type:'line',data:{labels,datasets:[{label:'M+1 Retention %',data:m1,borderColor:'#5b5bf0',backgroundColor:'#5b5bf033',fill:true,tension:.3},{label:'M+3 Retention %',data:m3,borderColor:'#14b8a6',tension:.3,borderDash:[5,4]}]},options:{scales:{y:{min:0,max:100,title:{display:true,text:'Retention %'}}}}});
+  }];
+};
+
+P.data=()=>{
+  const r=S.raw,F=['cid','name','date','amount','cat','prod','region'];
+  const L={cid:'Customer ID*',name:'Name',date:'Order date*',amount:'Amount*',cat:'Category',prod:'Product',region:'Region'};
+  return[`<div class="card"><h3>Data Source</h3>
+    <p class="mut">Currently loaded: <b>${$n(S.orders.length)}</b> orders &middot; <b>${$n(Object.keys(S.cust).length)}</b> customers. Upload a CSV or Excel file of transactions (one row per order).</p>
+    <div class="row"><input type="file" id="fi" accept=".csv,.xlsx,.xls" onchange="load(this.files[0])"><button class="b" onclick="sample();S.raw=null;go(1)">&#8635; Reload sample data</button></div>
+  </div>
+  ${r?`<div class="card" style="margin-top:14px"><h3>Preview &amp; Column Mapping</h3>
+    <div class="row">${F.map(k=>`<label class="mut">${L[k]}<br><select onchange="S.map.${k}=this.value"><option value="">&#8212;</option>${r.h.map(h=>`<option ${S.map[k]==h?'selected':''}>${esc(h)}</option>`).join('')}</select></label>`).join('')}</div>
+    <h3 style="margin-top:14px">Cleaning Options</h3>
+    <div class="row"><label><input type="checkbox" id="k1" checked> Remove duplicates</label><label><input type="checkbox" id="k2" checked> Drop invalid rows</label><label><input type="checkbox" id="k3" checked> Trim text &amp; fill missing region</label></div>
+    <p><button class="b p" onclick="applyMap()">Clean &amp; Import</button></p>
+    <div id="rep"></div>
+    ${tbl(r.h.map(esc),r.rows.slice(0,6).map(x=>`<tr>${r.h.map(h=>`<td>${esc(x[h])}</td>`).join('')}</tr>`))}
+  </div>`:`<div class="card empty" style="margin-top:14px">No file selected. Upload to preview and map columns.</div>`}`,()=>{}];
+};
+function load(f){
+  if(!f)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    const wb=XLSX.read(e.target.result,{cellDates:true}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{raw:true,defval:''}),h=Object.keys(rows[0]||{});
+    const g=re=>h.find(x=>re.test(x))||'';
+    S.raw={h,rows};
+    S.map={cid:g(/cust.*id|customer|client|^id$/i),name:g(/name/i),date:g(/date|time/i),amount:g(/amount|total|revenue|sales|price/i),cat:g(/categ/i),prod:g(/product|item/i),region:g(/region|state|city|country/i)};
+    go(1);
+  };
+  rd.readAsArrayBuffer(f);
+}
+function applyMap(){
+  const M=S.map,r=S.raw.rows,rep={in:r.length,dup:0,bad:0};
+  if(!M.cid||!M.date||!M.amount)return alert('Map Customer ID, Order date and Amount');
+  const seen=new Set,O=[],C={};
+  r.forEach(x=>{
+    const cid=String(x[M.cid]).trim(),d=x[M.date]instanceof Date?+x[M.date]:+new Date(x[M.date]),amt=parseFloat(String(x[M.amount]).replace(/[^0-9.\-]/g,''));
+    if($('#k2').checked&&(!cid||isNaN(d)||isNaN(amt)||amt<=0)){rep.bad++;return}
+    if($('#k1').checked){const k=JSON.stringify(Object.values(x));if(seen.has(k)){rep.dup++;return}seen.add(k)}
+    const t=$('#k3').checked?v=>String(v||'').trim():v=>String(v||'');
+    C[cid]??={id:cid,name:t(x[M.name])||cid,region:t(x[M.region])||'Unknown',age:30,channel:'Unknown'};
+    O.push({id:O.length+1,cid,d,cat:t(x[M.cat])||'Uncategorized',prod:t(x[M.prod])||'Unknown',qty:1,amt});
+  });
+  if(!O.length)return alert('No valid rows after cleaning');
+  S.orders=O;S.cust=C;S.ref=Math.max(...O.map(o=>o.d));S.f={from:'',to:'',seg:'',cat:'',reg:''};S.raw=null;go(1);
+  $('#main').insertAdjacentHTML('afterbegin',`<div class="card" style="margin-bottom:12px">&#9989; Imported ${O.length} orders for ${Object.keys(C).length} customers. Removed ${rep.dup} duplicates and ${rep.bad} invalid rows.</div>`);
+}
+
+P.about=()=>{
+  return[`<div class="card ab-sec">
+    <h2>&#127891; Project Overview</h2>
+    <p>SegmentIQ is a fully client-side Customer Segmentation &amp; Sales Analytics platform built as a B.Tech Final Year Project. It applies <b>RFM (Recency, Frequency, Monetary)</b> analysis and <b>K-Means clustering</b> to segment customers and generate actionable marketing insights — all in a single HTML file with no backend required.</p>
+    <div class="tech-grid">
+      <div class="tc"><b>&#128196; Language</b><span>Vanilla JavaScript (ES2022)</span></div>
+      <div class="tc"><b>&#127912; Charts</b><span>Chart.js 4.4</span></div>
+      <div class="tc"><b>&#128196; Excel/CSV</b><span>SheetJS (xlsx 0.18)</span></div>
+      <div class="tc"><b>&#127760; Fonts</b><span>Google Fonts — Inter</span></div>
+      <div class="tc"><b>&#127968; Architecture</b><span>Single-page, zero backend</span></div>
+      <div class="tc"><b>&#127775; Theme</b><span>Auto dark/light + manual toggle</span></div>
+    </div>
+  </div>
+  <div class="card ab-sec">
+    <h2>&#128200; RFM Methodology</h2>
+    <p>RFM is a proven customer segmentation technique used in CRM and direct marketing. Each customer is scored 1–5 on three dimensions:</p>
+    <div class="tech-grid">
+      <div class="tc"><b>R — Recency</b><span>Days since last purchase. Score 5 = bought very recently. Customers who bought recently are more likely to buy again.</span></div>
+      <div class="tc"><b>F — Frequency</b><span>Total number of orders. Score 5 = most frequent buyer. Frequent buyers show loyalty and engagement.</span></div>
+      <div class="tc"><b>M — Monetary</b><span>Total spend. Score 5 = highest spender. High monetary value customers drive disproportionate revenue.</span></div>
+    </div>
+    <h3 style="margin-top:14px">Segment Rules</h3>
+    <div class="tw"><table><thead><tr><th>Segment</th><th>Rule</th><th>Interpretation</th></tr></thead><tbody>
+      <tr><td>${tag('Champions')}</td><td>R&#8805;4 &amp; F&#8805;4</td><td>Best customers — bought recently, buy often, spend most</td></tr>
+      <tr><td>${tag('Loyal Customers')}</td><td>R&#8805;3 &amp; F&#8805;3</td><td>Regular buyers with good recency</td></tr>
+      <tr><td>${tag('New / Promising')}</td><td>R&#8805;4 &amp; F&#8804;2</td><td>Recent first-time or second-time buyers</td></tr>
+      <tr><td>${tag('Win-Back (High Value)')}</td><td>R&#8804;2 &amp; (F&#8805;3 or M&#8805;4)</td><td>Were valuable, now lapsing — worth winning back</td></tr>
+      <tr><td>${tag('Hibernating')}</td><td>R&#8804;2</td><td>Haven&apos;t bought in a long time, low engagement</td></tr>
+      <tr><td>${tag('Needs Attention')}</td><td>All others</td><td>Mid-tier customers needing nurturing</td></tr>
+    </tbody></table></div>
+  </div>
+  <div class="card ab-sec">
+    <h2>&#129302; K-Means Clustering</h2>
+    <p>In addition to rule-based RFM segments, SegmentIQ implements <b>K-Means clustering</b> from scratch (no ML library). Customers are normalised on R, F, M dimensions and clustered using <b>K-Means++ initialisation</b> with 20 iterations. This provides a data-driven, unsupervised alternative to rule-based segmentation.</p>
+    <ul>
+      <li>Features: Recency (days), Frequency (orders), Monetary (total spend)</li>
+      <li>Normalisation: min-max scaling per feature</li>
+      <li>Initialisation: K-Means++ (greedy farthest-point seeding)</li>
+      <li>Configurable k: 3, 4, 5, or 6 clusters</li>
+    </ul>
+  </div>
+  <div class="card ab-sec">
+    <h2>&#128200; Churn Risk Score</h2>
+    <p>Each customer receives a churn risk label based on their RFM scores:</p>
+    <ul>
+      <li><span class="rh">High</span> — Combined score (5-R)&times;2 + (5-F) + (5-M) &ge; 10</li>
+      <li><span class="rm">Medium</span> — Score 6–9</li>
+      <li><span class="rl">Low</span> — Score &lt; 6</li>
+    </ul>
+    <p class="mut">Recency is weighted 2&times; because recency is the strongest predictor of churn in transactional data.</p>
+  </div>
+  <div class="card ab-sec">
+    <h2>&#128203; Cohort Retention Analysis</h2>
+    <p>Customers are grouped into monthly cohorts based on their <b>first purchase month</b>. The retention table shows what percentage of each cohort returned to purchase in subsequent months (M+0 through M+7). This reveals how well the business retains newly acquired customers over time.</p>
+  </div>
+  <div class="card">
+    <h2>&#128100; About</h2>
+    <p>Built as a B.Tech Final Year Project in Computer Science / Data Science. Demonstrates end-to-end data analytics: data ingestion, cleaning, feature engineering, unsupervised ML (K-Means), business intelligence dashboards, and actionable recommendations.</p>
+    <p class="mut">Stack: HTML5 &bull; CSS3 &bull; Vanilla JS &bull; Chart.js &bull; SheetJS &bull; No frameworks &bull; No backend &bull; No build tools</p>
+  </div>`,()=>{}];
+};
+
+/* ---------- shell ---------- */
+const NAV=[
+  ['dash','&#128202; Dashboard'],
+  ['seg','&#129329; Segments'],
+  ['ins','&#128161; Insights'],
+  ['prod','&#128717; Products'],
+  ['cust','&#128100; Customers'],
+  ['cohort','&#128197; Cohort Retention'],
+  ['data','&#128193; Data &amp; Cleaning'],
+  ['about','&#8505; Methodology']
+];
+function go(p){
+  if(typeof p=='string'){S.page=p;S.editing=null}
+  const fast=p===1;
+  $('#nav').innerHTML=NAV.map(([k,l])=>`<button class="${S.page==k?'on':''}" onclick="go('${k}')">${l}</button>`).join('');
+  const T=NAV.find(n=>n[0]==S.page)[1].replace(/&#\d+;/g,'').replace(/&amp;/g,'&').trim();
+  const showFilters=!['data','about','cohort'].includes(S.page);
+  $('#main').innerHTML=`<div class="top"><h1>${T}</h1><span class="mut nonp">${$n(S.orders.length)} orders loaded</span></div>${showFilters?filters():''}<div id="pg">${fast?'':'<div class="sk"></div><div class="sk"></div>'}</div>`;
+  const run=()=>{const[h,after]=P[S.page]();$('#pg').innerHTML=h;after()};
+  fast?run():setTimeout(run,220);
+}
+try{const t=localStorage.getItem('th');if(t)document.documentElement.dataset.theme=t}catch(e){}
+sample();go('dash');
+</script></body></html>
